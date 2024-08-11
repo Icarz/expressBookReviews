@@ -1,22 +1,53 @@
-const express = require('express');
-const jwt = require('jsonwebtoken');
-const session = require('express-session')
-const customer_routes = require('./router/auth_users.js').authenticated;
-const genl_routes = require('./router/general.js').general;
+const express = require("express");
+const jwt = require("jsonwebtoken");
+const session = require("express-session");
+const customer_routes = require("./router/auth_users.js").authenticated;
+const genl_routes = require("./router/general.js").general;
 
 const app = express();
 
 app.use(express.json());
 
-app.use("/customer",session({secret:"fingerprint_customer",resave: true, saveUninitialized: true}))
+app.use(
+  "/customer",
+  session({
+    secret: "fingerprint_customer",
+    resave: true,
+    saveUninitialized: true,
+  })
+);
 
-app.use("/customer/auth/*", function auth(req,res,next){
-//Write the authenication mechanism here
+app.use("/customer/auth/*", function auth(req, res, next) {
+  // Get the token from the Authorization header
+  const authHeader = req.headers["authorization"];
+
+  // Check if the Authorization header is present and starts with "Bearer "
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res
+      .status(401)
+      .json({ message: "Access denied. No token provided." });
+  }
+
+  // Extract the token from the "Bearer " prefix
+  const token = authHeader.split(" ")[1];
+
+  // Verify the token using the secret key
+  jwt.verify(token, "fingerprint_customer", (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ message: "Invalid token." });
+    }
+
+    // Attach the decoded token to the request object (optional)
+    req.user = decoded;
+
+    // Call the next middleware or route handler
+    next();
+  });
 });
- 
-const PORT =5000;
+
+const PORT = 5000;
 
 app.use("/customer", customer_routes);
 app.use("/", genl_routes);
 
-app.listen(PORT,()=>console.log("Server is running"));
+app.listen(PORT, () => console.log("Server is running"));
