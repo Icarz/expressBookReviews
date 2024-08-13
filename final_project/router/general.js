@@ -27,57 +27,61 @@ public_users.post("/register", async (req, res) => {
 });
 
 // Get the book list available in the shop
-public_users.get("/", function (req, res) {
-  const booksJson = JSON.stringify(books, null, 2);
-  res.setHeader("Content-Type", "application/json");
-  res.send(booksJson);
+public_users.get("/", async (req, res) => {
+  try {
+    const bookList = await Promise.resolve(books); // Simulate async behavior
+    res.status(200).json(bookList);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching book list", error });
+  }
 });
 
 // Get book details based on ISBN
-public_users.get("/isbn/:isbn", function (req, res) {
-  const isbn = parseInt(req.params.isbn, 10); // Convert the ISBN to an integer
-
-  // Directly access the book by key
-  const book = books[isbn];
-
-  if (book) {
-    res.json(book);
-  } else {
-    res.status(404).json({ message: "Book not found" });
+public_users.get("/isbn/:isbn", async (req, res) => {
+  const isbn = req.params.isbn;
+  try {
+    const book = await Promise.resolve(books[isbn]); // Simulate async behavior
+    if (book) {
+      res.status(200).json(book);
+    } else {
+      res.status(404).json({ message: "Book not found" });
+    }
+  } catch (error) {
+    res.status(404).json({ message: "Error fetching book details", error });
   }
 });
 
 // Get book details based on author
-public_users.get("/author/:author", function (req, res) {
+public_users.get("/author/:author", async (req, res) => {
   const author = req.params.author;
-
-  // Convert the books object to an array of values
-  const booksArray = Object.values(books);
-
-  // Filter books by the matching author
-  const booksByAuthor = booksArray.filter((b) => b.author === author);
-
-  if (booksByAuthor.length > 0) {
-    res.json(booksByAuthor);
-  } else {
-    res.status(404).json({ message: "No books found by this author" });
+  try {
+    const booksByAuthor = await Promise.resolve(
+      Object.values(books).filter((book) => book.author === author)
+    ); // Simulate async behavior
+    if (booksByAuthor.length > 0) {
+      res.status(200).json(booksByAuthor);
+    } else {
+      res.status(404).json({ message: "No books found by this author" });
+    }
+  } catch (error) {
+    res.status(404).json({ message: "Error fetching books by author", error });
   }
 });
 
 // Get all books based on title
-public_users.get("/title/:title", function (req, res) {
+public_users.get("/title/:title", async (req, res) => {
   const title = req.params.title;
-
-  // Convert the books object to an array of values
-  const booksArray = Object.values(books);
-
-  // Find books with the matching title
-  const booksByTitle = booksArray.filter((b) => b.title === title);
-
-  if (booksByTitle.length > 0) {
-    res.json(booksByTitle);
-  } else {
-    res.status(404).json({ message: "No books found with this title" });
+  try {
+    const booksByTitle = await Promise.resolve(
+      Object.values(books).filter((book) => book.title === title)
+    ); // Simulate async behavior
+    if (booksByTitle.length > 0) {
+      res.status(200).json(booksByTitle);
+    } else {
+      res.status(404).json({ message: "No books found with this title" });
+    }
+  } catch (error) {
+    res.status(404).json({ message: "Error fetching books by title", error });
   }
 });
 
