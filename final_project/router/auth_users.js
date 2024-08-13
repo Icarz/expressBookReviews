@@ -47,14 +47,17 @@ regd_users.post("/login", async (req, res) => {
     return res.status(403).json({ message: "User not authenticated" });
   }
 
-  let accessToken = jwt.sign({ data: username }, "access", {
+  let accessToken = jwt.sign({ data: username }, "fingerprint_customer", {
     expiresIn: 60 * 60,
   });
 
   req.session.authorization = { accessToken };
   req.session.username = username;
 
-  return res.send("User logged in successfully");
+  return res.json({
+    message: "User logged in successfully",
+    token: accessToken, // Include the token in the response
+  });
 });
 
 // Add a book review
