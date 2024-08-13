@@ -1,27 +1,28 @@
 const express = require("express");
+const bcrypt = require("bcrypt");
 let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
 
-public_users.post("/register", (req, res) => {
+public_users.post("/register", async (req, res) => {
   const { username, password } = req.body;
 
-  // Check if username and password are provided
   if (!username || !password) {
     return res
       .status(400)
       .json({ message: "Username and password are required" });
   }
 
-  // Check if the username already exists
   if (isValid(username)) {
     return res.status(400).json({ message: "Username already exists" });
   }
 
-  // Add the new user
-  users[username] = { password }; // You should hash passwords in a real application
+  // Hash the password before storing it
+  const hashedPassword = await bcrypt.hash(password, 10);
+  users.push({ username, password: hashedPassword }); // Add new user
 
+  console.log("Users array:", users); // Debugging: Check if user is being stored correctly
   return res.status(201).json({ message: "User registered successfully" });
 });
 
