@@ -50,9 +50,8 @@ regd_users.post("/login", async (req, res) => {
   let accessToken = jwt.sign({ data: username }, "fingerprint_customer", {
     expiresIn: 60 * 60,
   });
-
-  req.session.authorization = { accessToken };
   req.session.username = username;
+  req.session.authorization = { accessToken };
 
   return res.json({
     message: "User logged in successfully",
@@ -63,8 +62,10 @@ regd_users.post("/login", async (req, res) => {
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
   let userd = req.session.username;
+  console.log("Logged-in user:", userd);
   let ISBN = req.params.isbn;
   let details = req.query.review;
+  console.log("Review details:", details);
 
   if (!books[ISBN]) {
     return res.status(404).json({ message: "Book not found" });
@@ -75,6 +76,8 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
   }
 
   books[ISBN].reviews[userd] = details;
+  // Add this console log
+  console.log(`Book reviews after addition: `, books[ISBN].reviews);
   return res.status(201).json({ message: "Review added successfully" });
 });
 

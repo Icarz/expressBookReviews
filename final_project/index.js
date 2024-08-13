@@ -20,7 +20,7 @@ app.use(
 app.use("/customer/auth/*", function auth(req, res, next) {
   // Get the token from the Authorization header
   const authHeader = req.headers["authorization"];
-  console.log("Authorization Header:", authHeader); // Debugging
+  // console.log("Authorization Header:", authHeader); // Debugging
 
   // Check if the Authorization header is present and starts with "Bearer "
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -36,7 +36,7 @@ app.use("/customer/auth/*", function auth(req, res, next) {
   // Verify the token using the secret key
   jwt.verify(token, "fingerprint_customer", (err, decoded) => {
     if (err) {
-      console.log("Token verification error:", err); // Debugging
+      // console.log("Token verification error:", err); // Debugging
       return res.status(403).json({ message: "Invalid token." });
     }
 
